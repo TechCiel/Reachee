@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# use your JLU account to access VPN
+JLU_EMAIL	= 'zhaoyy2119'
+PASSWORD	= 'PASSWORD'
+# bot could be created by @BotFather via Telegram
+BOT_TOKEN	= '1089092646:<redacted>'
+# add your bot as channel administrator with post privilege
+BOT_CHANNEL	= '@JLUAnnouncements'
+# other settings
+INTERVAL	= 10*60
+MAX_LENGTH	= 1000
+DEBUG		= 0#+1
+
+import re
+import urllib3
+import requests
+from lxml import etree
+from time import sleep
+import logging
+from logging import debug, info, warning, error, critical
+
+logging.basicConfig(level=logging.INFO-10*DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+warning('Started.')
+
+try:
+	with open('.reachee','r') as f:
+		lastPost=int(f.read())
+except:
+	error('No last post record found!')
+	lastPost = 0
+
+while True:
+	info('Checking for updates...')
+	try: 
+		s = requests.Session()
+		# vpns.jlu.edu.cn doesn't send intermediate CA certificate, workaround
+		s.verify = False
+		urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+		
+		postPayload = {
+			'auth_type': 'local',
+			'username': JLU_EMAIL,
+			'password': PASSWORD
+			}
+		r = s.post('https://vpns.jlu.edu.cn/do-login?local_login=true', data=postPayload)
+
+		r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!jldxList.action?channelId=179577')
+		posts = etree.HTML(r.text).xpath('//a[@class="font14"]/@href')
+		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x)[1])), posts))
+
+		for pid in sorted(posts):
+			if pid <= lastPost: continue
+			info('New post: {}'.format(pid))
+			r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}'.format(pid))
+			
+			dom = etree.HTML(r.text)
+			title = dom.xpath('//div[@class="content_t"]/text()')[0]
+			time = dom.xpath('//div[@class="content_time"]/text()')[0].strip()
+			dept = dom.xpath('//div[@class="content_time"]/span/text()')[0]
+			contentA = '\n'.join(dom.xpath('//div[contains(@class,"content_font")]/text()'))
+			contentB = '\n'.join([ ''.join(p.xpath('.//text()')) for p in dom.xpath('//div[contains(@class,"content_font")]//p') ])
+			content = (contentB if len(contentA) < len(contentB) else contentA).strip()
+			# fixes email addresses and links
+			content = re.sub(r'([!-~]+\@[!-~]+)', ' \\1 ', content)
+			content = re.sub(r'(https?://[!-~]+)', '\\1 ', content)
+			linkLAN = '<a href="https://oa.jlu.edu.cn/defaultroot/PortalInformation!getInformation.action?id={}">校内链接</a>'.format(pid)
+			linkVPN = '<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}">VPN链接</a>'.format(pid)
+			html = '<b>{}</b>\n{} {}\n{}  {}\n\n{}'.format(title, time, dept, linkLAN, linkVPN, content)
+			if len(html) > MAX_LENGTH: html = html[:MAX_LENGTH] + '...'
+			postPayload = {
+				'chat_id': BOT_CHANNEL,
+				'text': html,
+				'parse_mode': 'HTML',
+				'disable_web_page_preview': True
+				}
+			r = s.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json=postPayload)
+			debug(r.text)
+			if not r.json()['ok']: raise Exception('Telegram API Error.')
+
+			lastPost = pid
+			try:
+				with open('.reachee','w') as f:
+					f.write(str(lastPost))
+			except:
+				error('Unable to write record file!')
+	except Exception as e:
+		warning('Unexpected error happened.')
+		warning(repr(e))
+	sleep(INTERVAL)
