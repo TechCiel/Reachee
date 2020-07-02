@@ -26,10 +26,11 @@ warning('Started.')
 
 try:
 	with open('.reachee','r') as f:
-		lastPost=int(f.read())
+		posted = eval(f.read())
+	if not isinstance(posted, list): raise Exception
 except:
 	error('No last post record found!')
-	lastPost = 0
+	posted = []
 
 while True:
 	info('Checking for updates...')
@@ -50,8 +51,8 @@ while True:
 		posts = etree.HTML(r.text).xpath('//a[@class="font14"]/@href')
 		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x)[1])), posts))
 
-		for pid in sorted(posts):
-			if pid <= lastPost: continue
+		for pid in posts[::-1]:
+			if pid in posted: continue
 			info('New post: {}'.format(pid))
 			r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}'.format(pid))
 			
@@ -69,6 +70,8 @@ while True:
 			linkVPN = '<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}">VPN链接</a>'.format(pid)
 			html = '<b>{}</b>\n{} {}\n{}  {}\n\n{}'.format(title, time, dept, linkLAN, linkVPN, content)
 			if len(html) > MAX_LENGTH: html = html[:MAX_LENGTH] + '...'
+			debug(title)
+
 			postPayload = {
 				'chat_id': BOT_CHANNEL,
 				'text': html,
@@ -79,10 +82,10 @@ while True:
 			debug(r.text)
 			if not r.json()['ok']: raise Exception('Telegram API Error.')
 
-			lastPost = pid
+			posted.append(pid)
 			try:
 				with open('.reachee','w') as f:
-					f.write(str(lastPost))
+					f.write(repr(posted))
 			except:
 				error('Unable to write record file!')
 	except Exception as e:
