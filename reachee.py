@@ -44,16 +44,17 @@ while True:
 			'auth_type': 'local',
 			'username': JLU_EMAIL,
 			'password': PASSWORD
-			}
+		}
 		r = s.post('https://vpns.jlu.edu.cn/do-login?local_login=true', data=postPayload)
 
 		r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!jldxList.action?channelId=179577')
 		posts = etree.HTML(r.text).xpath('//a[@class="font14"]/@href')
 		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x)[1])), posts))
+		debug(posts)
 
 		for pid in posts[::-1]:
 			if pid in posted: continue
-			info('New post: {}'.format(pid))
+			info(f'New post: {pid}')
 			r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}'.format(pid))
 			
 			dom = etree.HTML(r.text)
@@ -70,14 +71,15 @@ while True:
 			linkVPN = '<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}">VPN链接</a>'.format(pid)
 			html = '<b>{}</b>\n{} {}\n{}  {}\n\n{}'.format(title, time, dept, linkLAN, linkVPN, content)
 			if len(html) > MAX_LENGTH: html = html[:MAX_LENGTH] + '...'
-			debug(title)
+			info(f'Title: {title}')
+			debug(f'Content: {content}')
 
 			postPayload = {
 				'chat_id': BOT_CHANNEL,
 				'text': html,
 				'parse_mode': 'HTML',
 				'disable_web_page_preview': True
-				}
+			}
 			r = s.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json=postPayload)
 			debug(r.text)
 			if not r.json()['ok']: raise Exception('Telegram API Error.')
@@ -89,6 +91,6 @@ while True:
 			except:
 				error('Unable to write record file!')
 	except Exception as e:
-		warning('Unexpected error happened.')
-		warning(repr(e))
+		error('Unexpected error happened.')
+		error(repr(e))
 	sleep(INTERVAL)
