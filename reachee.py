@@ -4,13 +4,10 @@
 # use your JLU account to access VPN
 JLU_EMAIL	= 'zhaoyy2119'
 PASSWORD	= 'PASSWORD'
-# bot could be created by @BotFather via Telegram
-BOT_TOKEN	= '1089092646:<redacted>'
-# add your bot as channel administrator with post privilege
-BOT_CHANNEL	= '@JLUAnnouncements'
+# webhook URL
+WEBHOOK		= 'http://127.0.0.1:000/'
 # other settings
 INTERVAL	= 10*60
-MAX_LENGTH	= 1000
 DEBUG		= 0#+1
 
 import re
@@ -69,20 +66,21 @@ while True:
 			content = re.sub(r'(https?://[!-~]+)', '\\1 ', content)
 			linkLAN = '<a href="https://oa.jlu.edu.cn/defaultroot/PortalInformation!getInformation.action?id={}">校内链接</a>'.format(pid)
 			linkVPN = '<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}">VPN链接</a>'.format(pid)
-			html = '<b>{}</b>\n{} {}\n{}  {}\n\n{}'.format(title, time, dept, linkLAN, linkVPN, content)
-			if len(html) > MAX_LENGTH: html = html[:MAX_LENGTH] + '...'
 			info(f'Title: {title}')
 			debug(f'Content: {content}')
 
 			postPayload = {
-				'chat_id': BOT_CHANNEL,
-				'text': html,
-				'parse_mode': 'HTML',
-				'disable_web_page_preview': True
+				'id': pid,
+				'title': title,
+				'time': time,
+				'dept': dept,
+				'content': content,
+				'linkLAN': linkLAN,
+				'linkVPN': linkVPN
 			}
-			r = s.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json=postPayload)
+			r = s.post(WEBHOOK, json=postPayload)
 			debug(r.text)
-			if not r.json()['ok']: raise Exception('Telegram API Error.')
+			r.raise_for_status()
 
 			posted.append(pid)
 			try:
