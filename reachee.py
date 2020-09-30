@@ -69,7 +69,7 @@ while True:
 			content = re.sub(r'(https?://[!-~]+)', '\\1 ', content)
 			linkLAN = '<a href="https://oa.jlu.edu.cn/defaultroot/PortalInformation!getInformation.action?id={}">校内链接</a>'.format(pid)
 			linkVPN = '<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}">VPN链接</a>'.format(pid)
-			html = '<b>{}</b>\n{} {}\n{}  {}\n\n{}'.format(title, time, dept, linkLAN, linkVPN, content)
+			html = '<b>{}</b>\n{} #{}\n{}  {}\n\n{}'.format(title, time, dept, linkLAN, linkVPN, content)
 			if len(html) > MAX_LENGTH: html = html[:MAX_LENGTH] + '...'
 			info(f'Title: {title}')
 			debug(f'Content: {content}')
