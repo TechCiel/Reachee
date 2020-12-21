@@ -55,7 +55,7 @@ while True:
 		for pid in posts[::-1]:
 			if pid in posted: continue
 			info(f'New post: {pid}')
-			r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}'.format(pid))
+			r = s.get(f'https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={pid}')
 			
 			dom = etree.HTML(r.text)
 			title = dom.xpath('//div[@class="content_t"]/text()')[0]
@@ -67,9 +67,9 @@ while True:
 			# fixes email addresses and links
 			content = re.sub(r'([!-~]+\@[!-~]+)', ' \\1 ', content)
 			content = re.sub(r'(https?://[!-~]+)', '\\1 ', content)
-			linkLAN = '<a href="https://oa.jlu.edu.cn/defaultroot/PortalInformation!getInformation.action?id={}">校内链接</a>'.format(pid)
-			linkVPN = '<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={}">VPN链接</a>'.format(pid)
-			html = '<b>{}</b>\n{} #{}\n{}  {}\n\n{}'.format(title, time, dept, linkLAN, linkVPN, content)
+			linkLAN = f'<a href="https://oa.jlu.edu.cn/defaultroot/PortalInformation!getInformation.action?id={pid}">校内链接</a>'
+			linkVPN = f'<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={pid}">VPN链接</a>'
+			html = f'<b>{title}</b>\n{time} #{dept}\n{linkLAN}  {linkLAN}\n\n{__import__("html").escape(content)}'
 			if len(html) > MAX_LENGTH: html = html[:MAX_LENGTH] + '...'
 			info(f'Title: {title}')
 			debug(f'Content: {content}')
