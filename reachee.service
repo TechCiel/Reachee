@@ -1,0 +1,13 @@
+[Unit]
+Description=Reachee
+After=network.target
+
+[Service]
+Type=simple
+User=user
+ExecStart=/usr/bin/env python3 /home/user/Reachee/reachee.py
+WorkingDirectory=/home/user/Reachee
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
