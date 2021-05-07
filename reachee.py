@@ -2,16 +2,19 @@
 # -*- coding: utf-8 -*-
 
 # use your JLU account to access VPN
-JLU_EMAIL	= 'zhaoyy2119'
-PASSWORD	= 'PASSWORD'
+JLU_EMAIL   = 'zhaoyy2119'
+PASSWORD    = 'PASSWORD'
 # bot could be created by @BotFather via Telegram
-BOT_TOKEN	= '1089092646:<redacted>'
+BOT_TOKEN   = '1089092646:<redacted>'
 # add your bot as channel administrator with post privilege
-BOT_CHANNEL	= '@JLUAnnouncements'
+BOT_CHANNEL = '@JLUAnnouncements'
+# fetch from which OA news channel
+OA_CHANNEL  = '179577'#&startPage=2'
+CENSOR_WORD = ['先进技术研究院']
 # other settings
-INTERVAL	= 10*60
-MAX_LENGTH	= 1000
-DEBUG		= 0#+1
+INTERVAL    = 10*60
+MAX_LENGTH  = 1000
+DEBUG       = 0#+1
 
 import re
 import requests
@@ -45,7 +48,7 @@ while True:
 		}
 		r = s.post('https://vpns.jlu.edu.cn/do-login?local_login=true', data=postPayload)
 
-		r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!jldxList.action?channelId=179577')
+		r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!jldxList.action?channelId='+OA_CHANNEL)
 		posts = etree.HTML(r.text).xpath('//a[@class="font14"]/@href')
 		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x)[1])), posts))
 		debug(posts)
@@ -62,6 +65,7 @@ while True:
 			contentA = '\n'.join(dom.xpath('//div[contains(@class,"content_font")]/text()'))
 			contentB = '\n'.join([ ''.join(p.xpath('.//text()')) for p in dom.xpath('//div[contains(@class,"content_font")]//p') ])
 			content = (contentB if len(contentA) < len(contentB) else contentA).strip()
+			if any(i in content for i in CENSOR_WORD): content = ''
 			# fixes email addresses and links
 			content = re.sub(r'([!-~]+\@[!-~]+)', ' \\1 ', content)
 			content = re.sub(r'(https?://[!-~]+)', '\\1 ', content)
