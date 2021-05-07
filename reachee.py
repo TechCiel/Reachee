@@ -14,7 +14,6 @@ MAX_LENGTH	= 1000
 DEBUG		= 0#+1
 
 import re
-import urllib3
 import requests
 from lxml import etree
 from time import sleep
@@ -37,8 +36,7 @@ while True:
 	try: 
 		s = requests.Session()
 		# vpns.jlu.edu.cn doesn't send intermediate CA certificate, workaround
-		s.verify = False
-		urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+		s.verify = 'ca.crt'
 		
 		postPayload = {
 			'auth_type': 'local',
@@ -80,7 +78,7 @@ while True:
 				'parse_mode': 'HTML',
 				'disable_web_page_preview': True
 			}
-			r = s.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json=postPayload)
+			r = requests.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json=postPayload)
 			debug(r.text)
 			if not r.json()['ok']: raise Exception('Telegram API Error.')
 
