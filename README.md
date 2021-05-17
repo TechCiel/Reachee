@@ -14,8 +14,6 @@
 
 可以参考 `reachee.service` 建立 systemd 服务。
 
-若提示证书错误，请将 `ca.crt` 文件更新为 VPNS 的证书链。
-
 ## 联系
 
 欢迎开 issue 、pr ，随缘处理。

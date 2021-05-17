@@ -38,8 +38,6 @@ while True:
 	info('Checking for updates...')
 	try: 
 		s = requests.Session()
-		# vpns.jlu.edu.cn doesn't send intermediate CA certificate, workaround
-		s.verify = 'ca.crt'
 		
 		postPayload = {
 			'auth_type': 'local',
