@@ -124,4 +124,4 @@ while True:
 	except Exception as e:
 		error('Unexpected error happened.')
 		error(repr(e))
-	sleep(INTERVAL)
+	if page==1:	sleep(INTERVAL)
