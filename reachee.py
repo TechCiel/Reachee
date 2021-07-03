@@ -9,7 +9,8 @@ BOT_TOKEN   = '1089092646:<redacted>'
 # add your bot as channel administrator with post privilege
 BOT_CHANNEL = '@JLUAnnouncements'
 # fetch from which OA news channel
-OA_CHANNEL  = '179577'#&startPage=2'
+OA_CHANNEL  = '179577'
+CATCH_UP    = True # for auto catch-up
 CENSOR_WORD = ['先进技术研究院']
 # other settings
 INTERVAL    = 10*60
@@ -23,6 +24,7 @@ from html import escape
 from time import sleep
 import logging
 from logging import debug, info, warning, error, critical
+class FloodException(Exception): pass
 
 logging.basicConfig(level=logging.INFO-10*DEBUG, format='%(asctime)s %(levelname)s %(message)s')
 warning('Started.')
@@ -34,6 +36,9 @@ try:
 except:
 	error('No last post record found!')
 	posted = []
+
+probing = CATCH_UP
+page = 1
 
 while True:
 	info('Checking for updates...')
@@ -47,13 +52,28 @@ while True:
 		}
 		r = s.post('https://vpns.jlu.edu.cn/do-login?local_login=true', data=postPayload)
 
-		r = s.get('https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!jldxList.action?channelId='+OA_CHANNEL)
+		r = s.get(f'https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!jldxList.action?channelId={OA_CHANNEL}&startPage={page}')
 		posts = etree.HTML(r.text).xpath('//a[@class="font14"]/@href')
 		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x)[1])), posts))
+		posts = [x for x in posts if x not in posted]
 		debug(posts)
 
+		if probing:
+			if posts:
+				info(f'[Probing] page {page} have news, getting earlier...')
+				page = page+1
+			else:
+				info(f'[Probing] no news on page {page}, stop probing and get back.')
+				page = max(1, page-1)
+				probing = False
+			continue
+
+		if page>1 and not posts:
+			info(f'[Catch-Up] Finished with page {page}, moving forward...')
+			page = page-1
+			continue
+
 		for pid in posts[::-1]:
-			if pid in posted: continue
 			info(f'New post: {pid}')
 			r = s.get(f'https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={pid}')
 			
@@ -83,7 +103,11 @@ while True:
 			}
 			r = requests.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json=postPayload)
 			debug(r.text)
-			if not r.json()['ok']: raise Exception('Telegram API Error.')
+			if not r.json()['ok']:
+				if r.json()['error_code'] == 429:
+					raise FloodException()
+				else:
+					raise Exception('Telegram API Error.')
 
 			posted.append(pid)
 			try:
@@ -91,6 +115,10 @@ while True:
 					f.write(repr(posted))
 			except:
 				error('Unable to write record file!')
+	except FloodException:
+		warning('Telegram API hit rate limit!')
+		sleep(60)
+		continue
 	except Exception as e:
 		error('Unexpected error happened.')
 		error(repr(e))
