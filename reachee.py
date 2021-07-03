@@ -19,6 +19,7 @@ DEBUG       = 0#+1
 import re
 import requests
 from lxml import etree
+from html import escape
 from time import sleep
 import logging
 from logging import debug, info, warning, error, critical
@@ -69,7 +70,7 @@ while True:
 			content = re.sub(r'(https?://[!-~]+)', '\\1 ', content)
 			linkLAN = f'<a href="https://oa.jlu.edu.cn/defaultroot/PortalInformation!getInformation.action?id={pid}">校内链接</a>'
 			linkVPN = f'<a href="https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={pid}">VPN链接</a>'
-			html = f'<b>{title}</b>\n{time} #{dept}\n{linkLAN}  {linkVPN}\n\n{__import__("html").escape(content)}'
+			html = f'<b>{escape(title)}</b>\n{time} #{dept}\n{linkLAN}  {linkVPN}\n\n{escape(content)}'
 			if len(html) > MAX_LENGTH: html = html[:MAX_LENGTH] + '...'
 			info(f'Title: {title}')
 			debug(f'Content: {content}')
