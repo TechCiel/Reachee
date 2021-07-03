@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # use your JLU account to access VPN
+USE_VPNS    = True
 JLU_EMAIL   = 'zhaoyy2119'
 PASSWORD    = 'PASSWORD'
 # bot could be created by @BotFather via Telegram
@@ -36,7 +37,10 @@ try:
 except:
 	error('No last post record found!')
 	posted = []
-
+if USE_VPNS:
+	baseURL = 'https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96'
+else:
+	baseURL = 'https://oa.jlu.edu.cn'
 probing = CATCH_UP
 page = 1
 
@@ -45,14 +49,13 @@ while True:
 	try: 
 		s = requests.Session()
 		
-		postPayload = {
+		if USE_VPNS: s.post('https://vpns.jlu.edu.cn/do-login?local_login=true', data={
 			'auth_type': 'local',
 			'username': JLU_EMAIL,
 			'password': PASSWORD
-		}
-		r = s.post('https://vpns.jlu.edu.cn/do-login?local_login=true', data=postPayload)
+		})
 
-		r = s.get(f'https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!jldxList.action?channelId={OA_CHANNEL}&startPage={page}')
+		r = s.get(f'{baseURL}/defaultroot/PortalInformation!jldxList.action?channelId={OA_CHANNEL}&startPage={page}')
 		posts = etree.HTML(r.text).xpath('//a[@class="font14"]/@href')
 		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x)[1])), posts))
 		posts = [x for x in posts if x not in posted]
@@ -75,7 +78,7 @@ while True:
 
 		for pid in posts[::-1]:
 			info(f'New post: {pid}')
-			r = s.get(f'https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot/PortalInformation!getInformation.action?id={pid}')
+			r = s.get(f'{baseURL}/defaultroot/PortalInformation!getInformation.action?id={pid}')
 			
 			dom = etree.HTML(r.text)
 			title = dom.xpath('//div[@class="content_t"]/text()')[0]
@@ -95,13 +98,12 @@ while True:
 			info(f'Title: {title}')
 			debug(f'Content: {content}')
 
-			postPayload = {
+			r = requests.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json={
 				'chat_id': BOT_CHANNEL,
 				'text': html,
 				'parse_mode': 'HTML',
 				'disable_web_page_preview': True
-			}
-			r = requests.post('https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage', json=postPayload)
+			})
 			debug(r.text)
 			if not r.json()['ok']:
 				if r.json()['error_code'] == 429:
