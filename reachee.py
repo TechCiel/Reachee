@@ -15,6 +15,7 @@ CATCH_UP    = True # for auto catch-up
 CENSOR_WORD = ['先进技术研究院']
 # other settings
 INTERVAL    = 10*60
+TIMEOUT     = 10
 MAX_LENGTH  = 1000
 DEBUG       = 0#+1
 
@@ -53,9 +54,9 @@ while True:
 			'auth_type': 'local',
 			'username': JLU_EMAIL,
 			'password': PASSWORD
-		})
+		}, timeout=TIMEOUT)
 
-		r = s.get(f'{baseURL}/defaultroot/PortalInformation!jldxList.action?channelId={OA_CHANNEL}&startPage={page}')
+		r = s.get(f'{baseURL}/defaultroot/PortalInformation!jldxList.action?channelId={OA_CHANNEL}&startPage={page}', timeout=TIMEOUT)
 		posts = etree.HTML(r.text).xpath('//a[@class="font14"]/@href')
 		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x)[1])), posts))
 		posts = [x for x in posts if x not in posted]
@@ -78,7 +79,7 @@ while True:
 
 		for pid in posts[::-1]:
 			info(f'New post: {pid}')
-			r = s.get(f'{baseURL}/defaultroot/PortalInformation!getInformation.action?id={pid}')
+			r = s.get(f'{baseURL}/defaultroot/PortalInformation!getInformation.action?id={pid}', timeout=TIMEOUT)
 			
 			dom = etree.HTML(r.text)
 			title = dom.xpath('//div[@class="content_t"]/text()')[0]
@@ -103,7 +104,7 @@ while True:
 				'text': html,
 				'parse_mode': 'HTML',
 				'disable_web_page_preview': True
-			})
+			}, timeout=TIMEOUT)
 			debug(r.text)
 			if not r.json()['ok']:
 				if r.json()['error_code'] == 429:
@@ -124,4 +125,6 @@ while True:
 	except Exception as e:
 		error('Unexpected error happened.')
 		error(repr(e))
+		sleep(60)
+		continue
 	if page==1:	sleep(INTERVAL)
