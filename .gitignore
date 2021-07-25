@@ -1,1 +1,4 @@
 .reachee
+*.json
+!*-example.json
+__pycache__/

@@ -1,0 +1,30 @@
+{
+    "debug": false,
+    "interval": 300,
+    "channel": 179577,
+    "vpns": {
+        "account": "zhaoyy2119",
+        "password": "PASSWORD"
+    },
+    "senders": {
+        "telegram": [{
+                "token": "1089092646:<redacted>",
+                "chat": "@JLUNews",
+                "maxlength": 1000,
+                "skip": [],
+                "censor": ["先进技术研究院"]
+            },
+            {
+                "token": "1089092646:<redacted>",
+                "chat": "@JLUNewsStudent",
+                "maxlength": 1000,
+                "skip": ["聘", "任免", "招生宣传", "讲话精神", "申报项目公示", "技术转移公示"],
+                "censor": ["先进技术研究院"]
+            }
+        ],
+        "webhook": [{
+            "url": "http://localhost/post_api_or_whatever",
+            "json": true
+        }]
+    }
+}
