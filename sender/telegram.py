@@ -17,7 +17,7 @@ def send(config, post):
         raise Exception('[Telegram] missing parameter')
     
     # check key words
-    if any((x in post['content']) for x in c['skip']):
+    if any((x in post['title']) for x in c['skip']):
         log.info('[Telegram] skip word hit')
         return
     if any((x in post['content']) for x in c['censor']):
