@@ -20,13 +20,19 @@ import bs4
 
 # 0 load config
 if len(argv)<2: argv.append(CONFIG)
-c = { 'interval': 300, 'channel': 179577, 'senders': {} }
+c = {
+	'daemon': True,
+	'debug': False,
+	'interval': 300,
+	'channel': 179577,
+	'senders': {}
+}
 c.update(json.load(open(argv[1])))
 
 # 0 set logging
 log.basicConfig(
 	format='%(asctime)s %(levelname)s %(message)s',
-	level=(log.DEBUG if c.get('debug', False) else log.INFO)
+	level=(log.DEBUG if c['debug'] else log.INFO)
 )
 log.debug(f'Config: {c}')
 
@@ -125,6 +131,7 @@ while True:
 			log.info(f'[Catch-Up] finished with page {page}, moving on...')
 			page = page-1
 		else:
+			if not c['daemon']: exit(0)
 			sleep(c['interval'])
 
 	except requests.exceptions.RequestException as e:

@@ -1,4 +1,5 @@
 {
+    "daemon": true,
     "debug": false,
     "interval": 300,
     "channel": 179577,
@@ -16,12 +17,17 @@
             },
             {
                 "token": "1089092646:<redacted>",
-                "chat": "@JLUNewsStudent",
+                "chat": "@JLUNewsFiltered",
                 "maxlength": 1000,
-                "skip": ["聘", "任免", "招生宣传", "讲话精神", "申报项目公示", "技术转移公示"],
+                "skip": ["聘", "任免", "任职", "招生宣传", "讲话精神", "申报项目公示", "技术转移公示"],
                 "censor": ["先进技术研究院"]
             }
         ],
+        "telegram_summary": [{
+            "token": "1089092646:<redacted>",
+            "chat": "@JLUNewsSummary",
+            "skip": ["聘", "任免", "任职", "招生宣传", "讲话精神", "申报项目公示", "技术转移公示"]
+        }],
         "webhook": [{
             "url": "http://localhost/post_api_or_whatever",
             "json": true
