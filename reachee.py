@@ -72,10 +72,11 @@ while True:
 		posts = bs4.BeautifulSoup(r.content, 'html.parser').find_all(name='a', class_='font14')
 		# 1 extract post id
 		posts = list(map((lambda x : int(re.search(r'id=(\d+)',x['href'])[1])), posts))
-		# 1 filter against posted
-		posts = [x for x in posts if x not in posted]
-		# 1 earlier to later
 		posts.reverse()
+		# 1 reorder posted records
+		posted = [x for x in posted if x not in posts] + [x for x in posted if x in posts]
+		# 1 filter posts against posted records
+		posts = [x for x in posts if x not in posted]
 		log.debug(f'Posts: {posts}')
 
 		# 1 probing logic
