@@ -47,7 +47,7 @@ except:
 
 # 0 set variables
 baseLAN = 'https://oa.jlu.edu.cn/defaultroot'
-baseVPN = 'https://vpns.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot'
+baseVPN = 'https://webvpn.jlu.edu.cn/https/77726476706e69737468656265737421fff60f962b2526557a1dc7af96/defaultroot'
 baseURL = baseVPN if ('vpns' in c) else baseLAN
 probing = 1 if posted else 0
 page = 1
@@ -60,7 +60,7 @@ while True:
 		s = requests.Session()
 		
 		# 1 login to vpns if required
-		if 'vpns' in c: s.post('https://vpns.jlu.edu.cn/do-login?local_login=true', data={
+		if 'vpns' in c: s.post('https://webvpn.jlu.edu.cn/do-login?local_login=true', data={
 			'auth_type': 'local',
 			'username': c['vpns']['account'],
 			'password': c['vpns']['password']
