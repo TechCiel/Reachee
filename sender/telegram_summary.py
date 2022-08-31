@@ -44,7 +44,7 @@ def send(config, post):
         return
 
     # form message
-    html = f'<b>{escape(post["title"])}</b> [<a href="{post["linkLAN"]}">OA</a> / <a href="{post["linkVPN"]}">VPNS</a>]\n<i>{post["time"][5:]} {post["dept"]}</i>\n\n'
+    html = f'<b>{escape(post["title"])}</b> [<a href="{post["linkLAN"]}">OA</a> / <a href="{post["linkVPN"]}">VPN</a>]\n<i>{post["time"][5:]} {post["dept"]}</i>\n\n'
     log.debug(f'[Telegram Summary] html: {html}')
 
     # save buffer
