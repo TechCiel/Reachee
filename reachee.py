@@ -103,6 +103,7 @@ while True:
 			dept = dom.find(class_='content_time').find('span').text
 			def innerText(tag):
 				if not isinstance(tag, bs4.element.Tag): return str(tag)
+				if tag.name in ['style', 'script']: return ''
 				result = ''.join([ innerText(x) for x in tag.contents ])
 				if tag.name in ['p', 'br', 'div']: result = f'\n{result}\n'
 				return re.sub(r'(\s*\n\s*)+', '\n', result)
