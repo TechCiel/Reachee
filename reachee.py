@@ -47,7 +47,7 @@ except:
 
 # 0 set variables
 baseLAN = 'https://oa.jlu.edu.cn/defaultroot'
-baseVPN = 'https://vpn.jlu.edu.cn/https/6a6c7576706e6973746865676f6f64215ebd458ea69e85a6228e6380fc/defaultroot'
+baseVPN = 'https://vpn.jlu.edu.cn/https/44696469646131313237446964696461a579b2620fdde512c84ea96fd9/defaultroot'
 baseURL = baseVPN if ('vpns' in c) else baseLAN
 probing = 1 if posted else 0
 page = 1
