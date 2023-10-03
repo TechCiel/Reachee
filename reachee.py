@@ -7,7 +7,7 @@ or specifie config file in command line like
 
 python3 reachee.py /path/to/config.json
 '''
-CONFIG = 'reachee.json'
+CONFIG = '/reachee.json'
 
 import re
 import json
@@ -17,6 +17,7 @@ from time import sleep
 from importlib import import_module
 import requests
 import bs4
+
 
 # 0 load config
 if len(argv)<2: argv.append(CONFIG)
@@ -28,6 +29,7 @@ c = {
 	'senders': {}
 }
 c.update(json.load(open(argv[1])))
+
 
 # 0 set logging
 log.basicConfig(

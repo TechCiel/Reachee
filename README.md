@@ -19,6 +19,15 @@
 - 指定获取其他通知频道
 - 通过 `reachee.service` 使用 systemd 管理
 
+## 使用docker
+
+从ghcr.io中pull`docker pull {replacement}`
+
+复制一份`reachee-example.json`
+
+运行`docker run -v {path_to_reachee.json}:/reachee/reachee.json --name reachee reachee -d`
+
+
 ## 联系
 
 欢迎开 issue 、pr ，或者到 [Telegram@JLULUG](https://t.me/JLULUG) 转转。
