@@ -7,7 +7,7 @@ or specifie config file in command line like
 
 python3 reachee.py /path/to/config.json
 '''
-CONFIG = '/reachee.json'
+CONFIG = 'reachee.json'
 
 import re
 import json
