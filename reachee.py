@@ -18,6 +18,7 @@ from importlib import import_module
 import requests
 import bs4
 
+
 # 0 load config
 if len(argv)<2: argv.append(CONFIG)
 c = {
@@ -28,6 +29,7 @@ c = {
 	'senders': {}
 }
 c.update(json.load(open(argv[1])))
+
 
 # 0 set logging
 log.basicConfig(
